@@ -1,0 +1,88 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="templates/template.xhtml">
+
+    <f:metadata>
+        <f:viewAction action="#{loginController.verificarUsuarioAutenticado('aluno')}" />
+    </f:metadata>
+
+    <ui:define name="title">
+        Lista de Projetos 
+    </ui:define>
+
+    <ui:define name="content">
+        <style>
+            .data-table {
+                margin: 20px auto;
+                max-width: 800px;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                border: 1px solid #e6e6e6;
+            }
+            .data-table .ui-datatable {
+                width: 100%;
+            }
+
+            .button-container {
+                text-align: center;
+                margin-top: 20px;
+            }
+            .button-container .p-button {
+                margin-right: 10px;
+            }
+        </style>
+
+        <h:form id="projetosAprovadosListForm">
+            <p:messages id="messages" closable="true" />
+
+            <p:panel header="Inscrição Projetos" style="text-align: left; margin: 20px;">
+                <p:dataTable value="#{projetoController.listaProjetoAprovados}" var="projeto" selectionMode="single" selection="#{projetoController.projetoSelecionado}" rowKey="#{projeto.idProjeto}" paginator="true" rows="5">
+                    <p:column headerText="Professor Responsavel" filterBy="#{projeto.prontuario.nome}" filterMatchMode="contains">
+                        <h:outputText value="#{projeto.prontuario.nome}" />
+                    </p:column>
+                    <p:column headerText="Titulo Projeto" filterBy="#{projeto.titulo}" filterMatchMode="contains">
+                        <h:outputText value="#{projeto.titulo}" />
+                    </p:column>
+                    <p:column headerText="Descrição" filterBy="#{projeto.resumo}" filterMatchMode="contains">
+                        <h:outputText value="#{projeto.resumo}" />
+                    </p:column>
+                    <p:column headerText="Carga Horario Semanal" filterBy="#{projeto.cargaSemanal}" filterMatchMode="contains">
+                        <h:outputText value="#{projeto.cargaSemanal}" />
+                    </p:column>
+                    <p:column headerText="Download PDF">
+                        <p:commandLink value="Baixar" ajax="false">
+                            <f:param name="fileId" value="#{projeto.titulo}" />
+                            <p:fileDownload value="#{projetoController.getFileByTitulo(projeto.titulo)}" />
+                        </p:commandLink>
+                    </p:column>
+                    <p:column headerText="Data entrevista">
+                        <h:outputText 
+                            value="#{alunoController.dataEntrevista(projeto)}"
+                            style="width: 120px; color: orange;">
+                            <f:convertDateTime pattern="dd/MM/yyyy" />
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Inscrição" >
+                        <p:commandButton 
+                            value="#{alunoController.isInscrito(projeto) ? 'Aguardando entrevista' : 'Inscrever-se'}"
+                            action="#{alunoController.inscrever(projeto)}"
+                            styleClass="p-button-success" 
+                            style="width: 120px"
+                            update="@form"
+                            disabled="#{alunoController.isInscrito(projeto)}" />
+                    </p:column>
+
+                </p:dataTable>
+
+                <div class="button-container">
+                    <p:commandButton value="Voltar" action="index?faces-redirect=true" icon="pi pi-arrow-left" styleClass="p-button-raised" />
+                </div>
+            </p:panel>
+        </h:form>
+    </ui:define>
+</ui:composition>

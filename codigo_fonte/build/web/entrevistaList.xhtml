@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="templates/template.xhtml">
+    <f:metadata>
+        <f:viewAction action="#{loginController.verificarUsuarioAutenticado('professor')}" />
+    </f:metadata>
+
+    <ui:define name="title">
+        Entrevistas Pendentes
+    </ui:define>
+
+    <ui:define name="content">
+        <style>
+            .data-table {
+                margin: 20px auto;
+                max-width: 800px;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                border: 1px solid #e6e6e6;
+            }
+            .data-table .ui-datatable {
+                width: 100%;
+            }
+            .button-container {
+                text-align: center;
+                margin-top: 20px;
+            }
+            .button-container .p-button {
+                margin-right: 10px;
+            }
+        </style>
+
+        <h:form id="entrevistaListForm">
+            <p:messages id="messages" closable="true" />
+            <!-- Tabela para listar -->
+            <p:panel header="Entrevistas Pendentes" styleClass="data-table">
+                <p:dataTable value="#{projetoAlunoController.listaProjetoAlunoEntrevista}" var="projetoAluno" selectionMode="single" selection="#{professorController.professorSelecionado}" rowKey="#{projetoAluno.idProjeto}" paginator="true" rows="5">
+                    <p:column headerText="Projeto" filterBy="#{projetoAluno.idProjeto}" filterMatchMode="contains">
+                        <h:outputText value="#{projetoAluno.idProjeto.titulo}" />
+                    </p:column>
+                    <p:column headerText="Aluno" filterBy="#{projetoAluno.prontuario}" filterMatchMode="contains">
+                        <h:outputText value="#{projetoAluno.prontuario.nome}" />
+                    </p:column>
+                    <p:column headerText="Data da entrevista" filterBy="#{projetoAluno.dataEntrevista}" filterMatchMode="contains">
+                        <h:outputText value="#{projetoAluno.dataEntrevista}" />
+                    </p:column>
+
+                    <p:column>
+                        <p:commandButton 
+                            value="Avaliar aluno" 
+                            styleClass="p-button-raised p-button-primary" 
+                            style="margin-right: 20px; color: white;" 
+                            oncomplete="PF('avaliarDialog').show();" />
+
+                        <!-- Diálogo de Aprovação/Corrigir -->
+                        <p:dialog header="Informações" widgetVar="avaliarDialog" modal="true" resizable="false" width="400px">
+                            <h:form id="formAvaliar">
+                                <p:commandButton 
+                                    value="Aprovar aluno" 
+                                    styleClass="p-button-raised p-button-primary" 
+                                    style="margin-right: 20px; color: white;" 
+                                    oncomplete="PF('aprovarDialog').show();" />
+
+                                <p:commandButton 
+                                    value="Cancelar inscrição" 
+                                    styleClass="p-button-raised p-button-primary" 
+                                    style="margin-right: 20px; color: white;" 
+                                    oncomplete="PF('cancelarDialog').show();" />
+                            </h:form>
+                        </p:dialog>
+
+                        <p:dialog header="Aprovar inscrição" widgetVar="aprovarDialog" modal="true" resizable="false" width="400px">
+                            <h:form id="formAprovar">
+                                <p:panel id="painelAprovar" style="margin-top: 20px;">
+
+                                    <h:outputLabel value="Aprovar esse aluno como Bolsista ou voluntario?"/>
+                                    <br/>
+
+                                    <p:commandButton value="Bolsista" 
+                                                     styleClass="p-button-raised p-button-primary" 
+                                                     process="painelAprovar" 
+                                                     action="#{projetoAlunoController.aprovarAluno(projetoAluno)}" 
+                                                     oncomplete="PF('inputAprovacao').hide();" 
+                                                     update=":entrevistaListForm @this" style="margin: 20px"/>
+                                     <p:commandButton value="Voluntario" 
+                                                     styleClass="p-button-raised p-button-primary" 
+                                                     process="painelAprovar" 
+                                                     action="#{projetoAlunoController.aprovarAlunoVoluntario(projetoAluno)}" 
+                                                     oncomplete="PF('inputAprovacao').hide();" 
+                                                     update=":entrevistaListForm @this" style="margin: 20px"/>
+                                     <p:commandButton value="Voltar" 
+                                                     styleClass="p-button-raised p-button-secondary" 
+                                                     onclick="PF('aprovarDialog').hide();" 
+                                                     type="button" style="margin: 20px" />
+                                </p:panel>
+                            </h:form>
+                        </p:dialog>
+
+                        <p:dialog header="Cancelar Inscrição" widgetVar="cancelarDialog" modal="true" resizable="false" width="400px">
+                            <h:form id="formCancelar">
+                                <p:panel id="painelCancelar" style="margin-top: 20px;">
+
+                                    <h:outputLabel value="Confirmar cancelamento de inscrição?" />
+                                    <br/>
+
+                                    <p:commandButton value="Sim" 
+                                                     styleClass="p-button-raised p-button-primary" 
+                                                     process="painelCancelar" 
+                                                     action="#{projetoAlunoController.cancelarAluno(projetoAluno)}" 
+                                                     oncomplete="PF('inputCancelar').hide();" 
+                                                     update=":entrevistaListForm @this"  style="margin: 20px"/>
+                                    <p:commandButton value="Não" 
+                                                     styleClass="p-button-raised p-button-secondary" 
+                                                     onclick="PF('CancelarDialog').hide();" 
+                                                     type="button"  style="margin: 20px"/>
+                                </p:panel>
+                            </h:form>
+                        </p:dialog>
+
+                    </p:column>
+
+                </p:dataTable>
+
+                <!-- Botões -->
+                <div class="button-container">
+                    <p:commandButton value="Voltar" action="index?faces-redirect=true" icon="pi pi-arrow-left" styleClass="p-button-raised" />
+                </div>
+            </p:panel>
+        </h:form>
+    </ui:define>
+</ui:composition>

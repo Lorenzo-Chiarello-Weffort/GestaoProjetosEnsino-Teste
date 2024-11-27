@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="templates/template.xhtml">
+
+    <f:metadata>
+        <f:viewAction action="#{loginController.verificarUsuarioAutenticado('professor')}" />
+    </f:metadata>
+
+    <ui:define name="title">
+        Cadastro de Relatório
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="relatorioForm">
+
+            <!-- Mensagens de erro ou sucesso -->
+            <p:messages id="messages" closable="true" />
+
+            <p:panel header="Lista de Relatorios" styleClass="data-table">
+                <p:dataTable value="#{relatorioController.listTodosRelatorios}" var="relatorio" selectionMode="single" selection="#{relatorioController.relatorioSelecionado}" rowKey="#{relatorio.data}" paginator="true" rows="5">
+                    <p:column headerText="Projeto" filterBy="#{relatorio.projetoaluno.idProjeto.titulo}" filterMatchMode="contains">
+                        <h:outputText value="#{relatorio.projetoaluno.idProjeto.titulo}" />
+                    </p:column>
+                    <p:column headerText="Data relatorio:" filterBy="#{relatorio.data}" filterMatchMode="contains">
+                        <h:outputText value="#{relatorio.data}" />
+                    </p:column>
+                    <p:column headerText="Nome aluno:" filterBy="#{relatorio.projetoaluno.prontuario.nome}" filterMatchMode="contains">
+                        <h:outputText value="#{relatorio.projetoaluno.prontuario.nome}" />
+                    </p:column>
+                    <p:column headerText="Download PDF">
+                        <p:commandLink value="Baixar" ajax="false">
+                            <f:param name="fileId" value="#{relatorio.data}" />
+                            <p:fileDownload value="#{relatorioController.getFileById(relatorio.idrelatorio)}" />
+                        </p:commandLink>
+                    </p:column>
+                    <p:column headerText="Data assinatura aluno:" filterBy="#{relatorio.dtassinaaluno}" filterMatchMode="contains">
+                        <h:outputText value="#{relatorio.dtassinaaluno}" >
+                         <f:convertDateTime pattern="dd/MM/yyyy" />
+                        </h:outputText>
+                    </p:column>
+                    <p:column  headerText="Assinar">
+                        <p:commandButton value="Assinar Relatório" action="#{relatorioController.assinarProfessor(relatorio)}" rendered="#{not empty loginController.professorAutenticado and empty relatorio.dtassinaprofessor}" update="@form" style="margin: 20px;" ajax="false" />
+                        <h:outputText value="#{relatorio.dtassinaprofessor}" rendered="#{not empty relatorio.dtassinaprofessor}" >
+                         <f:convertDateTime pattern="dd/MM/yyyy" />
+                        </h:outputText>
+                    </p:column>
+                      <p:column  headerText="Remover Relatorio">
+                        <p:commandButton  value="Remover" action="#{relatorioController.removerRelatorio(relatorio)}" rendered="#{not empty loginController.professorAutenticado and not empty relatorio.dtassinaprofessor}" update="@form" style="margin: 20px; color: red" ajax="false" />
+                    </p:column>
+                    
+
+                </p:dataTable>
+            </p:panel>
+        </h:form>
+    </ui:define>
+</ui:composition>

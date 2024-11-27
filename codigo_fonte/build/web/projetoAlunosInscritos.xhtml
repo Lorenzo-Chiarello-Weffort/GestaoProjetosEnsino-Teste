@@ -1,0 +1,232 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="templates/template.xhtml">
+
+    <f:metadata>
+        <f:viewAction action="#{loginController.verificarUsuarioAutenticado('csp', 'professor')}" />
+    </f:metadata>
+
+    <ui:define name="title">
+        Gerenciar Projetos e Inscrições
+    </ui:define>
+
+    <ui:define name="content">
+        <style>
+            .data-table {
+                margin: 20px auto;
+                max-width: 800px;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                border: 1px solid #e6e6e6;
+            }
+        </style>
+
+        <!-- Formulário para selecionar projeto -->
+        <h:form id="selectProjectForm">
+            <p:messages id="messages" closable="true" />
+
+            <!-- Select para escolher o projeto -->
+            <p:panel header="Selecionar Projeto" style="margin: 20px;">
+                <p:selectOneMenu id="projetoSelect" value="#{projetoAlunoController.projetoAlunoSelecionado}" style="width: 100%;" converter="projetoAlunoConverter">
+                    <f:selectItem itemLabel="Selecione um Projeto" itemValue="" />
+                    <f:selectItems value="#{projetoAlunoController.listaProjetoAlunoAprovados}" var="projeto" itemLabel="#{projeto.idProjeto.titulo}" itemValue="#{projeto}" />
+                </p:selectOneMenu>
+
+                <p:commandButton value="Pesquisar Alunos" actionListener="#{projetoAlunoController.carregarAlunoPorProjeto}" update="@form" 
+                                 style="margin: 20px;" ajax="false"/>
+            </p:panel>
+
+            <p:panel header="Alunos Inscritos no Projeto" style="margin: 20px;" rendered="#{projetoAlunoController.mostrarPainelAlunos}">
+
+                <!-- Mensagem caso a lista de alunos esteja vazia -->
+                <h:outputText value="Nenhum aluno inscrito neste projeto." 
+                              rendered="#{empty projetoAlunoController.listaProjetoAluno}" 
+                              style="color: red; font-weight: bold;" />
+
+                <!-- Tabela de alunos -->
+                <p:dataTable id="alunosDataTable" value="#{projetoAlunoController.listaProjetoAluno}" var="projetoAluno" paginator="true" rows="10"
+                             selectionMode="single" rowKey="#{projetoAluno.idProjeto}" 
+                             emptyMessage="Nenhum aluno inscrito até o momento." 
+                             styleClass="data-table">
+
+                    <p:column headerText="Aluno" filterBy="#{projetoAluno.prontuario.nome}" filterMatchMode="contains">
+                        <h:outputText value="#{projetoAluno.prontuario.nome}" />
+                    </p:column>
+
+                    <p:column headerText="Projeto" filterBy="#{projetoAluno.idProjeto.titulo}" filterMatchMode="contains">
+                        <h:outputText value="#{projetoAluno.idProjeto.titulo}" />
+                    </p:column>
+
+                    <p:column headerText="Data da Entrevista"  filterBy="#{projetoAluno.dataEntrevista}" filterMatchMode="contains">
+                        <h:outputText value="#{projetoAluno.dataEntrevista}">
+                            <f:convertDateTime pattern="dd/MM/yyyy" />
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="Sala e Horário" rendered="#{not empty projetoAluno.salaHora}" >
+                        <h:outputText value="#{projetoAluno.salaHora}" />
+                    </p:column>
+
+                    <p:column headerText="Status" filterBy="#{projetoAluno.statusAluno}" rendered="#{projetoAluno.statusAluno eq 'Aprovado'}" filterMatchMode="contains">
+                        <h:outputText value="#{projetoAluno.statusAluno}"  style="color: green; font-weight: bold;" />
+                    </p:column>
+
+                    <p:column headerText="Status" filterBy="#{projetoAluno.statusAluno}" rendered="#{projetoAluno.statusAluno ne 'Aprovado' }" filterMatchMode="contains">
+                        <h:outputText value="#{projetoAluno.statusAluno}" style="color: orange; font-weight: bold;" />
+                    </p:column>
+                    
+                    <p:column headerText="Histórico escolar:" >
+                                    <p:commandLink value="Baixar Histórico" ajax="false">
+                                        <f:param name="fileId" value="#{projetoAluno.prontuario}" />
+                                        <p:fileDownload value="#{projetoAlunoController.getFileByAluno(projetoAluno.prontuario)}" />
+                                    </p:commandLink>
+                    </p:column>
+
+                    <p:column>
+                        <p:commandButton 
+                            value="Visualizar aluno" 
+                            styleClass="button-primary" 
+                            oncomplete="PF('avaliarDialog').show();" 
+                            rendered="#{projetoAluno.dataEntrevista == null}" />
+
+                        <!-- Diálogo de Aprovação/Corrigir -->
+                        <p:dialog header="Informações do Aluno" widgetVar="avaliarDialog" modal="true" resizable="false">
+                            <h:form id="formAvaliar">
+                                <p:panelGrid columns="2" styleClass="info-grid" style="margin: 20px;" columnClasses="label-column,value-column">
+                                    <h:outputText value="Nome:" />
+                                    <h:outputText value="#{projetoAluno.prontuario.nome}" />
+
+                                    <h:outputText value="Semestre:" />
+                                    <h:outputText value="#{projetoAluno.prontuario.semestre}" />
+
+                                    <h:outputText value="Turno:" />
+                                    <h:outputText value="#{projetoAluno.prontuario.turno}" />
+                                    
+                                    <h:outputText value="Horário:" />
+                                    <p:commandButton 
+                                        value="Visualizar Horário" 
+                                        styleClass="button-primary" 
+                                        onclick="#{projetoAlunoController.carregarHorario(projetoAluno.prontuario)}"
+                                        oncomplete="PF('visualizarHorario').show();" 
+                                        update="@this"
+                                        style="margin-right: 10px;"/>
+                                </p:panelGrid>
+
+
+                                <div class="button-container" style="margin-top: 20px; text-align: center;">
+                                    <p:commandButton 
+                                        value="Marcar Entrevista" 
+                                        styleClass="button-primary" 
+                                        oncomplete="PF('aprovarDialog').show();" 
+                                        update="@this"
+                                        style="margin-right: 10px;" />
+
+                                    <p:commandButton 
+                                        value="Cancelar Inscrição" 
+                                        styleClass="button-secondary" 
+                                        oncomplete="PF('cancelarDialog').show();" />
+                                </div>
+                            </h:form>
+                        </p:dialog>
+
+                        <!-- Diálogo para Visualizar Horário -->
+                        <p:dialog header="Horários do Aluno" widgetVar="visualizarHorario" modal="true" resizable="false" styleClass="dialog-box" width="50%">
+                            <h:form id="formVisualizarHorario">
+                                <!-- Tabela de horários -->
+                                <p:dataTable value="#{projetoAlunoController.listaHorario}" var="horario" paginator="true" rows="5" 
+                                             emptyMessage="Nenhum horário disponível." styleClass="data-table">
+                                    <p:column headerText="Dia da Semana">
+                                        <h:outputText value="#{horario.diaSemana}" />
+                                    </p:column>
+                                    <p:column headerText="Horário">
+                                        <h:outputText value="#{horario.hora}" />
+                                    </p:column>
+                                </p:dataTable>
+
+                                <!-- Botão para voltar -->
+                                <div style="text-align: center; margin-top: 20px;">
+                                    <p:commandButton value="Voltar" onclick="PF('visualizarHorario').hide();" type="button" styleClass="button-secondary" />
+                                </div>
+                            </h:form>
+                        </p:dialog>
+
+
+                        <!-- Diálogo para Aprovação -->
+                        <p:dialog header="Marcar Entrevista" widgetVar="aprovarDialog" modal="true" resizable="false" styleClass="dialog-box">
+                            <h:form id="formAprovar">
+                                <p:panelGrid columns="2" styleClass="info-grid" style="margin: 20px;" columnClasses="label-column,value-column">
+                                    <h:outputLabel value="Data entrevista:" for="inputdata" />
+                                    <p:datePicker id="inputdata" 
+                                                  value="#{projetoAlunoController.dataEntrevista}" 
+                                                  pattern="dd/MM/yyyy" 
+                                                  required="true" 
+                                                  label="Data entrevista">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                                    </p:datePicker>
+
+
+                                    <h:outputLabel value="Sala e Hora:" for="inputSalaHora" />
+                                    <p:inputText id="inputSalaHora" 
+                                                 value="#{projetoAlunoController.salaHora}" 
+                                                 placeholder="EX: Sala 000 às 09:30h" required="true"/>
+                                </p:panelGrid>
+
+                                <div class="button-container" style="margin-top: 20px; text-align: center;">
+                                    <p:commandButton value="Confirmar" 
+                                                     styleClass="button-primary" 
+                                                     process="@form" 
+                                                     action="#{projetoAlunoController.aprovarEntrevista(projetoAluno)}" 
+                                                     oncomplete="PF('aprovarDialog').hide();" 
+                                                     update=":selectProjectForm" 
+                                                     style="margin-right: 10px;" />
+
+
+                                    <p:commandButton value="Cancelar" 
+                                                     styleClass="button-secondary" 
+                                                     onclick="PF('aprovarDialog').hide();" 
+                                                     type="button" />
+                                </div>
+                            </h:form>
+                        </p:dialog>
+
+
+                        <!-- Diálogo para Cancelamento -->
+                        <p:dialog header="Cancelar Inscrição" widgetVar="cancelarDialog" modal="true" resizable="false" styleClass="dialog-box">
+                            <h:form id="formCancelar">
+                                <p:panelGrid columns="1" styleClass="info-grid" style="margin: 20px;">
+                                    <h:outputLabel value="Confirmar cancelamento de inscrição?" />
+                                </p:panelGrid>
+
+                                <div class="button-container" style="margin-top: 20px; text-align: center;">
+                                    <p:commandButton value="Sim" 
+                                                     styleClass="button-primary" 
+                                                     process="@this" 
+                                                     action="#{projetoAlunoController.cancelarAluno(projetoAluno)}" 
+                                                     oncomplete="PF('cancelarDialog').hide();" 
+                                                     update=":selectProjectForm" 
+                                                     style="margin-right: 10px;" />
+
+                                    <p:commandButton value="Não" 
+                                                     styleClass="button-secondary" 
+                                                     onclick="PF('cancelarDialog').hide();" 
+                                                     type="button" />
+                                </div>
+                            </h:form>
+                        </p:dialog>
+
+                    </p:column>
+                </p:dataTable>
+            </p:panel>
+        </h:form>
+
+        <!-- Diálogo para visualizar aluno -->
+        <p:dialog header="Informações do Aluno" widgetVar="infoDialog" modal="true" id="dialogForm">
+            <h:outputText value="#{alunoController.alunoSelecionado}" />
+        </p:dialog>
+    </ui:define>
+</ui:composition>

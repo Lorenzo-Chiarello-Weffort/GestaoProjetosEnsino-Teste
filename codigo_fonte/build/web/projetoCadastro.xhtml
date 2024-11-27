@@ -1,0 +1,187 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="templates/template.xhtml">
+
+    <f:metadata>
+        <f:viewAction action="#{loginController.verificarUsuarioAutenticado('professor')}" />
+    </f:metadata>
+
+    <ui:define name="title">
+        Cadastro de Projeto 
+    </ui:define>
+
+    <ui:define name="content">
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4; /* Cor de fundo clara */
+                margin: 0;
+                padding: 0;
+            }
+
+            .form-panel {
+                max-width: 600px; /* Largura máxima do painel */
+                margin: 20px auto; /* Centraliza o painel na tela */
+                padding: 20px; /* Espaçamento interno */
+                background-color: #fff; /* Cor de fundo branca */
+                border-radius: 8px; /* Bordas arredondadas */
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+            }
+
+            .form-panel h:outputLabel {
+                font-weight: bold; /* Negrito para os rótulos */
+                margin-bottom: 5px; /* Espaço abaixo do rótulo */
+                display: block; /* Garante que os rótulos ocupem toda a largura */
+            }
+
+            .form-group {
+                margin-bottom: 15px; /* Espaço abaixo de cada grupo de campos */
+            }
+
+            .form-group input,
+            .form-group textarea,
+            .form-group select,
+            .form-group p\:inputText,
+            .form-group p\:inputTextarea,
+            .form-group p\:selectOneMenu {
+                width: 100%; /* Largura total dos campos */
+                padding: 10px; /* Espaçamento interno nos campos */
+                border: 1px solid #ccc; /* Borda cinza clara */
+                border-radius: 4px; /* Bordas arredondadas */
+                box-sizing: border-box; /* Inclui padding e borda no total */
+                transition: border-color 0.3s; /* Efeito de transição para a borda */
+            }
+
+            .form-group input:focus,
+            .form-group textarea:focus,
+            .form-group select:focus {
+                border-color: #007bff; /* Cor da borda ao focar no campo */
+                outline: none; /* Remove o contorno padrão */
+            }
+
+            .button-container {
+                text-align: center; /* Centraliza os botões */
+                margin-top: 20px; /* Espaço acima dos botões */
+            }
+        </style>
+        <h:form id="projetoCadastroForm">
+            <p:messages id="messages" closable="true" />
+
+            <!-- Formulário de cadastro e edição -->
+            <p:panel header="#{projetoController.editar ? 'Editar Projeto' : 'Novo Projeto'}" styleClass="form-panel">
+
+                <div class="form-group">  
+                    <h:outputLabel for="idEdital" value="Número Edital:" />
+                    <p:selectOneMenu id="idEdital" 
+                                     value="#{projetoController.projetoParaCadastro.idedital}" 
+                                     required="true" 
+                                     converter="editalConverter" style="margin: 10px">
+                        <f:selectItem itemLabel="Selecione" itemValue="" />
+                        <f:selectItems value="#{editalController.listaEdital}" 
+                                       var="edital" 
+                                       itemValue="#{edital}" 
+                                       itemLabel="#{edital.idedital}" />
+                    </p:selectOneMenu>
+                </div>
+
+
+                <div class="form-group">
+                    <h:outputLabel for="titulo" value="Título:" />
+                    <p:inputText id="titulo" value="#{projetoController.projetoParaCadastro.titulo}" required="true" label="Título" />
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="resumo" value="Resumo:" />
+                    <p:inputTextarea id="resumo" value="#{projetoController.projetoParaCadastro.resumo}" rows="5" cols="30" required="true" label="Resumo" />
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="dataInicio" value="Data de Início:" />
+                    <p:calendar id="dataInicio" value="#{projetoController.projetoParaCadastro.dataInicio}" pattern="dd/MM/yyyy" required="true" label="Data de Início" />
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="dataTermino" value="Data de Término:" />
+                    <p:calendar id="dataTermino" value="#{projetoController.projetoParaCadastro.dataTermino}" pattern="dd/MM/yyyy" required="true" />
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="duracaoSemestre" value="Duração (Semestres):" />
+                    <p:inputText id="duracaoSemestre" value="#{projetoController.projetoParaCadastro.duracaoSemestre}" required="true" label="Duração Semestres" />
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="numBolsista" value="Número de Bolsistas:" />
+                    <p:inputText id="numBolsista" value="#{projetoController.projetoParaCadastro.numBolsista}" required="true" label="Número de Bolsistas" />
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="cargaSemanal" value="Carga Semanal:" />
+                    <p:inputText id="cargaSemanal" value="#{projetoController.projetoParaCadastro.cargaSemanal}" required="true" label="Carga Semanal" />
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="perfilBolsista" value="Perfil do Bolsista:" />
+                    <p:inputTextarea id="perfilBolsista" value="#{projetoController.projetoParaCadastro.perfilBolsista}" rows="5" cols="30" />
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="disciplinaRequerida" value="Disciplinas Requeridas:" />
+
+                    <p:selectCheckboxMenu id="disciplinaRequerida"
+                                          value="#{projetoController.disList}"
+                                          converter="disciplinaConverter"
+                                          label="Selecione Disciplinas"
+                                          updateLabel="true"
+                                          dynamic="true"
+                                          filter="true" filterMatchMode="startsWith"
+                                          style="width: 15rem; margin: 10px" panelStyle="width: 15rem" scrollHeight="250" >
+
+                        <!-- Lista de disciplinas que será exibida no menu -->
+                        <f:selectItems value="#{disciplinaController.disciplinasList}" 
+                                       var="disciplina" 
+                                       itemValue="#{disciplina}" 
+                                       itemLabel="#{disciplina.nome}" />
+
+                        <!-- Rodapé com o contador de disciplinas -->
+                        <f:facet name="footer">
+                            <p:divider styleClass="mt-0" />
+                            <h:outputText value="#{disciplinaController.disciplinasList.size()} disciplinas disponíveis" 
+                                          styleClass="py-1 block font-bold" />
+                        </f:facet>
+                    </p:selectCheckboxMenu>
+                </div>
+
+
+                <div class="form-group">
+                    <h:outputLabel for="atividadesPrevistas" value="Atividades Previstas:" />
+                    <p:inputTextarea id="atividadesPrevistas" value="#{projetoController.projetoParaCadastro.atividadesPrevistas}" rows="5" cols="30" />
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="prontuario" value="Professor Responsável:" />
+                    <p:inputText id="Professor" value="#{projetoController.usuarioSessao.nome}" disabled="true" />
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="arquivopdf" value="Arquivo Edital PDF:" />
+                    <p:fileUpload id="arquivopdf" 
+                                  value="#{projetoController.arquivoPDF}"
+                                  allowTypes="/(\.|\/)(pdf)$/" 
+                                  label="#{not empty projetoController.arquivoPDF ? projetoController.arquivoPDF.fileName : 'Selecionar PDF'}"
+                                  update="@this"
+                                  virusScan="true"
+                                  />
+                </div>
+
+                <p:commandButton value="Salvar" action="#{projetoController.salvarProjeto()}" update="@form" icon="pi pi-check"  styleClass="ui-priority-primary" ajax="false" style="margin-right: 20px" />
+                <p:commandButton value="Cancelar" action="index?faces-redirect=true" icon="pi pi-times" styleClass="ui-priority-secondary" />
+            </p:panel>
+        </h:form>
+    </ui:define>
+</ui:composition>

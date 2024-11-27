@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="templates/template.xhtml">
+
+    <f:metadata>
+        <f:viewAction action="#{loginController.verificarUsuarioAutenticado('csp')}" />
+    </f:metadata>
+
+    <ui:define name="title">
+        Cadastro de Disciplina
+    </ui:define>
+
+    <ui:define name="content">
+        <style>
+            .form-panel {
+                max-width: 600px;
+                margin: 0 auto;
+                text-align: left;
+                padding: 20px;
+            }
+            .form-group {
+                margin-bottom: 15px;
+            }
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+            }
+            .button-container {
+                text-align: center;
+                margin-top: 20px;
+            }
+        </style>
+
+        <h:form id="disciplinaForm">
+            <p:messages id="messages" closable="true" />
+            <p:panel header="Cadastrar Disciplina Manualmente" styleClass="form-panel" >
+                <div class="form-group" style="display: inline-block; width: 45%; margin-right: 5%;">
+                    <p:outputLabel for="curso" value="Curso:" />
+                    <p:selectOneMenu id="curso" value="#{disciplinaController.cursoSelecionado}" required="true" converter="cursoConverter">
+                        <f:selectItem itemLabel="Selecione um curso" itemValue="" />
+                        <f:selectItems value="#{disciplinaController.cursos}" var="curso" itemValue="#{curso}" itemLabel="#{curso.nomeCurso}" />
+                    </p:selectOneMenu>
+                </div>
+                <div class="form-group" style="display: inline-block; width: 45%;" >
+                    <p:outputLabel for="novaDisciplina" value="Nova Disciplina:" />
+                    <p:inputText id="novaDisciplina" value="#{disciplinaController.novaDisciplina}" 
+                                 onkeyup="PF('sugestaoDisciplina').filter(this.value)" />
+                </div>
+
+                <div class="button-container">
+                    <p:commandButton value="Cadastrar uma disciplina" action="#{disciplinaController.adicionarDisciplina()}" 
+                                     update="@form" icon="pi pi-plus" styleClass="ui-priority-primary"/>
+
+                </div>
+            </p:panel>
+        </h:form>
+
+        <p:separator/>
+
+        <h:form id="disciplinaForm2">
+            <p:messages id="messages" closable="true" />
+            <p:panel header="Cadastrar Disciplinas da Planilha" styleClass="form-panel" >
+                <div class="button-container">
+                    <p:selectOneMenu id="curso" value="#{disciplinaController.cursoSelecionado}" required="true" converter="cursoConverter">
+                        <f:selectItem itemLabel="Selecione um curso" itemValue="" />
+                        <f:selectItems value="#{disciplinaController.cursos}" var="curso" itemValue="#{curso}" itemLabel="#{curso.nomeCurso}" />
+                    </p:selectOneMenu>
+                    
+                    <br/>
+                    <h:outputLabel for="arquivopdf" value="Arquivo XLS com Disciplinas:" />
+                    <p:fileUpload id="arquivopdf" 
+                                  value="#{disciplinaController.arquivoXML}"
+                                  allowTypes="/(\.|\/)(xls)$/" 
+                                  label="#{not empty disciplinaController.arquivoXML ? disciplinaController.arquivoXML.fileName : 'Selecionar XLS'}"
+                                  update="@form"
+                                  virusScan="true" 
+                                  oncomplete="PF('fileUpload').clear();" />
+                </div>
+
+                <div class="button-container">
+                    <p:commandButton value="Cadastrar disciplinas da planilha" 
+                                     action="#{disciplinaController.carregarDisciplinasDeXML()}" 
+                                     update="@form" 
+                                     icon="pi pi-upload" 
+                                     styleClass="ui-priority-secondary" />
+                </div>
+            </p:panel>
+        </h:form>
+    </ui:define>
+</ui:composition>

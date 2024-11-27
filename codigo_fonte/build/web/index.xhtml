@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="templates\template.xhtml">
+
+    <f:metadata>
+        <f:viewAction action="#{loginController.verificarQualquerUsuarioAutenticado()}" />
+    </f:metadata>
+
+    <ui:define name="title">
+        Página Inicial
+    </ui:define>
+
+    <ui:define name="content">
+        <h:panelGroup>
+            <h1>Bem-vindo, #{loginController.usuarioLogado}!</h1>
+            <p>Esta é a página inicial do sistema. Utilize o menu lateral para navegar pelas diferentes seções.</p>
+            <br></br>
+              <p:column  rendered="#{not empty loginController.alunoAutenticado}" >
+                       <p>Lembre de sempre deixar seu Histórico atualizado!</p>
+                    </p:column>
+                <p:column  rendered="#{not empty loginController.alunoAutenticado and alunoController.verificarSeAlunoTemSalaHora(loginController.alunoAutenticado)}" >
+                       <h:outputText 
+                            value="Verifique sua aba de inscrição de projetos! - Data de Entrevista"
+                            style="width: 120px; color: red; font-size: 25px" />
+                    </p:column>
+        </h:panelGroup>
+    </ui:define>
+
+</ui:composition>

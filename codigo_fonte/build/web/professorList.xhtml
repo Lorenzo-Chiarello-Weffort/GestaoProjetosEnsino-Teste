@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="templates/template.xhtml">
+    <f:metadata>
+        <f:viewAction action="#{loginController.verificarUsuarioAutenticado('csp')}" />
+    </f:metadata>
+
+    <ui:define name="title">
+        Lista de Professores pendentes
+    </ui:define>
+
+    <ui:define name="content">
+        <style>
+            .data-table {
+                margin: 20px auto;
+                max-width: 800px;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                border: 1px solid #e6e6e6;
+            }
+            .data-table .ui-datatable {
+                width: 100%;
+            }
+            .button-container {
+                text-align: center;
+                margin-top: 20px;
+            }
+            .button-container .p-button {
+                margin-right: 10px;
+            }
+        </style>
+
+        <h:form id="professorListForm">
+            <p:messages id="messages" closable="true" />
+            <!-- Tabela para listar -->
+            <p:panel header="Lista de Professores pendentes" styleClass="data-table">
+                <p:dataTable value="#{professorController.listaProfessoresPendentes}" var="professor" selectionMode="single" selection="#{professorController.professorSelecionado}" rowKey="#{professor.prontuario}" paginator="true" rows="5">
+                    <p:column headerText="Prontuário" filterBy="#{professor.prontuario}" filterMatchMode="contains">
+                        <h:outputText value="#{professor.prontuario}" />
+                    </p:column>
+                    <p:column headerText="Nome" filterBy="#{professor.nome}" filterMatchMode="contains">
+                        <h:outputText value="#{professor.nome}" />
+                    </p:column>
+                    <p:column headerText="Email" filterBy="#{professor.email}" filterMatchMode="contains">
+                        <h:outputText value="#{professor.email}" />
+                    </p:column>
+                    <p:column  headerText="Status" filterBy="#{professor.status}" rendered="#{professor.status ne 'Aprovado'}" filterMatchMode="contains">
+                        <p:commandButton 
+                            value="Aprovar" 
+                            action="#{professorController.aprovarProfessor(professor)}" 
+                            styleClass="p-button-raised p-button-primary" 
+                            style="margin-right: 20px; color: black;"
+                            update="@form">
+                        </p:commandButton>
+
+                    </p:column>
+                </p:dataTable>
+
+                <!-- Botões -->
+                <div class="button-container">
+                    <p:commandButton value="Cadastrar" action="professorCadastro?faces-redirect=true" icon="pi pi-user" styleClass="p-button-raised p-button-primary" style="margin-right: 20px"/>
+                    <p:commandButton value="Editar" action="#{professorController.prepararCadastroOuEdicao(true)}" icon="pi pi-pencil" styleClass="p-button-raised p-button-primary" style="margin-right: 20px"/>
+                    <p:commandButton value="Excluir" action="#{professorController.excluirProfessor()}" icon="pi pi-trash" styleClass="p-button-raised p-button-danger" update="@form" style="margin-right: 20px"/>
+                    <p:commandButton value="Voltar" action="index?faces-redirect=true" icon="pi pi-arrow-left" styleClass="p-button-raised" />
+                </div>
+            </p:panel>
+        </h:form>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,147 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="templates/template.xhtml">
+
+    <f:metadata>
+        <f:viewAction action="#{loginController.verificarUsuarioAutenticado('aluno')}" />
+    </f:metadata>
+
+    <ui:define name="title">
+        Lista de Editais
+    </ui:define>
+
+    <ui:define name="content">
+        <style>
+            .data-table {
+                margin: 20px auto;
+                max-width: 800px;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                border: 1px solid #e6e6e6;
+            }
+            .data-table .ui-datatable {
+                width: 100%;
+            }
+            .button-container {
+                text-align: center;
+                margin-top: 20px;
+            }
+            .button-container .p-button {
+                margin-right: 10px;
+            }
+            .status-ativo {
+                color: green;
+                font-weight: bold;
+            }
+            .status-inativo {
+                color: red;
+                font-weight: bold;
+            }
+        </style>
+
+        <h:form id="relatorioListForm">
+            <p:messages id="messages" closable="true" />
+
+            <p:panel header="Projetos" styleClass="data-table" >
+                <!-- Trocar para projetos do aluno -->
+                <p:dataTable value="#{projetoAlunoController.listaProjetoAlunoAprovados}" var="projetoAluno" 
+                             selectionMode="single" 
+                             selection="#{projetoAlunoController.projetoAlunoSelecionado}" 
+                             rowKey="#{projetoAluno.idProjeto}" 
+                             paginator="true" rows="5" lazy="true">
+                    <p:column headerText="Titulo" filterBy="#{projetoAluno.idProjeto.titulo}" filterMatchMode="contains" >
+                        <h:outputText value="#{projetoAluno.idProjeto.titulo}" />
+                    </p:column>
+                </p:dataTable>
+
+                <p:commandButton value="Listar relatórios" actionListener="#{projetoAlunoController.carregarRelatorioPorProjeto}" update="relatorioListForm" 
+                                 style="margin: 20px;"/>
+            </p:panel>
+
+            <p:panel header="Relatórios" styleClass="data-table" rendered="#{projetoAlunoController.mostrarPainelRelatorios}">
+
+                <p:dataTable value="#{relatorioController.listaRelatorio}" var="relatorio" 
+                             selectionMode="single" 
+                             selection="#{relatorioController.relatorioSelecionado}" 
+                             rowKey="#{relatorio.idrelatorio}" 
+                             paginator="true" rows="10" lazy="true">
+                    <p:column headerText="Data relatorio" filterBy="#{relatorio.data}" filterMatchMode="contains">
+                        <h:outputText value="#{relatorio.data}">
+                            <f:convertDateTime pattern="dd/MM/yyyy" />
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Download PDF">
+                        <p:commandLink value="Baixar" ajax="false">
+                            <f:param name="relatorioId" value="#{relatorio.idrelatorio}" />
+                            <p:fileDownload value="#{relatorioController.getFileById(relatorio.idrelatorio)}" />
+                        </p:commandLink>
+                    </p:column>
+                    <p:column headerText="Data assinatura (Aluno)" filterBy="#{relatorio.dtassinaaluno}" filterMatchMode="contains">
+                        <h:outputText value="#{relatorio.dtassinaaluno}">
+                            <f:convertDateTime pattern="dd/MM/yyyy" />
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Data assinatura (Professor)" filterBy="#{relatorio.dtassinaprofessor}" filterMatchMode="contains">
+                        <h:outputText value="#{relatorio.dtassinaprofessor}">
+                            <f:convertDateTime pattern="dd/MM/yyyy" />
+                        </h:outputText>
+                    </p:column>
+                </p:dataTable>
+                <p:commandButton value="Cadastrar Relatório"
+                                 style="margin: 20px;"
+                                 onclick="PF('cadastrarRelatorioDialog').show();" />
+                <!-- Dialog de Cadastro do Relatório -->
+                <p:dialog header="Cadastrar Relatório"
+                          widgetVar="cadastrarRelatorioDialog"
+                          modal="true"
+                          resizable="false"
+                          width="500px">
+                    <h:form id="relatorioCadastroForm">
+                        <!-- Mensagens de erro ou sucesso -->
+                        <p:messages id="messages" closable="true" />
+
+                        <!-- Painel para o formulário -->
+                        <p:panel header="Informações do Relatório" styleClass="data-table">
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <h:outputLabel value="Data Relatorio:" />
+                                <h:outputText value="#{projetoAlunoController.dataRelatorio}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" />
+                                </h:outputText>
+                            </div>
+
+                            <!-- Campo de upload de arquivo PDF -->
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <h:outputLabel for="arquivopdf" value="Arquivo Relatório PDF:" />
+                                <p:fileUpload id="arquivopdf"
+                                              value="#{projetoAlunoController.relatorioFinalPDF}"
+                                              mode="advanced"
+                                              allowTypes="/(\.|\/)(pdf)$/"
+                                              label="#{not empty projetoAlunoController.relatorioFinalPDF ? projetoAlunoController.relatorioFinalPDF.fileName  : 'Selecionar PDF'}"
+                                              update="@this" />
+                            </div>
+
+                            <!-- Botões de Salvar e Cancelar -->
+                            <div style="margin-top: 20px; text-align: center;">
+                                <p:commandButton value="Salvar"
+                                                 onclick="#{projetoAlunoController.assinarAluno()}"
+                                                 update="@form"
+                                                 oncomplete=" PF('cadastrarRelatorioDialog').hide();" 
+                                                 style="margin: 20px"/>
+                                <p:commandButton value="Cancelar"
+                                                 onclick="PF('cadastrarRelatorioDialog').hide();"
+                                                 type="button"
+                                                 styleClass="p-button-secondary" style="margin: 20px"/>
+                            </div>
+                        </p:panel>
+                    </h:form>
+                </p:dialog>
+            </p:panel>
+        </h:form>
+    </ui:define>
+</ui:composition>

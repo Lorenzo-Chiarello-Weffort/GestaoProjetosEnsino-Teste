@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="templates/template.xhtml">
+
+    <f:metadata>
+        <f:viewAction action="#{loginController.verificarUsuarioAutenticado('csp')}" />
+    </f:metadata>
+
+    <ui:define name="title">
+        Cadastro de Edital
+    </ui:define>
+
+    <ui:define name="content">
+        <style>
+            .form-panel {
+                max-width: 600px;
+                margin: 0 auto;
+                text-align: left;
+                padding: 20px;
+            }
+            .form-group {
+                margin-bottom: 15px;
+            }
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+            }
+            .form-group input {
+                width: 100%;
+                padding: 8px;
+                box-sizing: border-box;
+            }
+            .button-container {
+                text-align: center;
+                margin-top: 20px;
+            }
+            .form-group {
+                margin-bottom: 1.5rem; /* Espaçamento inferior */
+            }
+
+            .form-label {
+                font-weight: bold; /* Negrito no rótulo */
+                color: #333; /* Cor do texto */
+                margin-bottom: 0.5rem; /* Espaçamento inferior */
+            }
+
+            .custom-file-upload {
+                border: 1px solid #ccc; /* Borda ao redor do campo */
+                display: inline-block; /* Alinhamento em linha */
+                padding: 6px 12px; /* Espaçamento interno */
+                cursor: pointer; /* Cursor pointer para indicar clicável */
+                border-radius: 4px; /* Bordas arredondadas */
+                transition: background-color 0.2s; /* Transição suave */
+            }
+
+            .custom-file-upload:hover {
+                background-color: #f0f0f0; /* Cor de fundo ao passar o mouse */
+            }
+
+            .text-danger {
+                color: red; /* Cor para mensagens de erro */
+            }
+
+            .text-success {
+                color: green; /* Cor para mensagens de sucesso */
+            }
+        </style>
+        <h:form id="editalCadastroForm">
+            <p:messages id="messages" closable="true" />
+
+            <!-- Formulário de cadastro e edição -->
+            <p:panel header="#{editalController.editar ? 'Editar Edital' : 'Cadastrar edital'}" styleClass="form-panel">
+                <div class="form-group">
+                    <h:outputLabel for="tipoedital" value="Tipo do Edital:" />
+                    <p:selectOneMenu id="tipoedital" value="#{editalController.editalParaCadastro.tipoedital}" required="true" label="Tipo">
+                        <f:selectItem itemLabel="Selecione" itemValue="" />
+                        <f:selectItem itemLabel="Edital para novos projetos" itemValue="novo_projeto" />
+                        <f:selectItem itemLabel="Edital para divulgar projetos aprovados" itemValue="projeto_aprovado" />
+                        <f:selectItem itemLabel="Edital para aluno voluntário em projeto" itemValue="projeto_voluntario" />
+                        <p:ajax update="@form" process="@this" listener="#{editalController.onTipoEditalChange}" />
+                    </p:selectOneMenu>
+                </div>
+                <div class="form-group">
+                    <h:outputLabel for="numero" value="Numero Edital:" />
+                    <p:inputText id="numero" value="#{editalController.editalParaCadastro.idedital}" required="true" label="numero" />
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="dataInicio" value="Data de Início:" />
+                    <p:calendar id="dataInicio" value="#{editalController.editalParaCadastro.dataabertura}" pattern="dd/MM/yyyy" required="true" label="Data de Início" />
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="dataTermino" value="Data de Término:" />
+                    <p:calendar id="dataTermino" value="#{editalController.editalParaCadastro.datafechamento}" pattern="dd/MM/yyyy" required="true" />
+                </div>
+
+                <div class="form-group">
+                    <h:outputLabel for="arquivopdf" value="Arquivo Edital PDF:" />
+                    <p:fileUpload id="arquivopdf" 
+                                  required="true"
+                                  value="#{editalController.arquivoPDF}"
+                                  allowTypes="/(\.|\/)(pdf)$/" 
+                                  label="#{not empty editalController.arquivoPDF ? editalController.arquivoPDF.fileName : 'Selecionar PDF'}"
+                                  update="@this"
+                                  virusScan="true"
+                                  auto="true"
+                                  />
+                </div>
+
+                <div class="form-group">
+                    <p:outputLabel for="resumoedital" value="Resumo: " />
+                    <p:inputText id="resumoedital" value="#{editalController.editalParaCadastro.resumoedital}" required="true" />
+                </div>
+
+                <h:panelGroup id="dataTableContainer" rendered="#{editalController.projetoAprovadoSelecionado}">
+                    <div class="form-group" >
+                        <p:dataTable value="#{projetoController.listaProjetoAprovados}" var="projeto" selectionMode="single" selection="#{projetoController.projetoSelecionado}" rowKey="#{projeto.idProjeto}" paginator="true" rows="5">
+                            <p:column headerText="Título" filterBy="#{projeto.titulo}" filterMatchMode="contains">
+                                <h:outputText value="#{projeto.titulo}" />
+                            </p:column>
+                            <p:column headerText="Professor" filterBy="#{projeto.prontuario.nome}" filterMatchMode="contains">
+                                <h:outputText value="#{projeto.prontuario.nome}" />
+                            </p:column>
+                            <p:column headerText="Status" >
+                                <h:outputText value="#{projeto.status}" style="color: green; font-weight: bold;" />
+                            </p:column>
+                            <p:column headerText="Retirar da lista">
+                                <p:commandButton 
+                                    value="Retirar" 
+                                    action="#{projetoController.PendenteProjeto(projeto)}" 
+                                    styleClass="p-button-raised p-button-primary" 
+                                    style="margin-right: 20px; color: black;" 
+                                    update="@form">
+                                </p:commandButton>
+                            </p:column>
+                        </p:dataTable>
+                    </div>
+                </h:panelGroup>
+
+                <div class="button-container">
+                    <p:commandButton value="Salvar" action="#{editalController.salvarEdital()}" ajax="false" update="@form" icon="pi pi-check" styleClass="ui-priority-primary" style="margin-right: 20px"/>
+                    <p:commandButton value="Cancelar" action="index?faces-redirect=true" icon="pi pi-times" styleClass="ui-priority-secondary" />
+                </div>
+            </p:panel>
+        </h:form>
+    </ui:define>
+</ui:composition>

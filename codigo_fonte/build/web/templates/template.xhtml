@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      translate="no">
+
+    <h:head>
+        <title><ui:insert name="title">Sistema CSP</ui:insert></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: Arial, sans-serif;
+            }
+
+            .menu-lateral {
+                width: 220px;
+                background-color: #f4f4f4;
+                padding: 10px;
+                position: fixed;
+                top: 50px;
+                left: 0;
+                height: calc(100% - 50px);
+                overflow-y: auto;
+                box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+                z-index: 999;
+            }
+
+            .button-container {
+                margin-bottom: 10px;
+                margin-right: 5px;
+            }
+
+            .top-bar {
+                background-color: #333;
+                color: #fff;
+                padding: 10px;
+                position: fixed;
+                top: 0;
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                z-index: 1000;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            }
+
+            .top-bar a {
+                color: #fff;
+                text-decoration: none;
+                margin-left: 15px;
+            }
+
+            .top-bar a:hover {
+                text-decoration: underline;
+            }
+
+            .main-container {
+                margin-left: 240px;
+                padding: 20px;
+                padding-top: 70px;
+                text-align: center;
+                position: relative;
+            }
+
+            .main-container h:outputText {
+                font-size: 24px;
+                font-weight: bold;
+            }
+        </style>
+    </h:head>
+
+    <h:body>
+        <div class="top-bar">
+            <div>
+                <h:outputText value="Usuário: #{loginController.usuarioLogado}"/>
+            </div>
+            <div>
+                <p:commandButton class="button-container" value="Sair" icon="pi pi-sign-out" 
+                                 action="#{loginController.logout}" style="margin-right: 20px" />
+                <p:commandButton class="button-container" value="Configurações" icon="pi pi-cog" 
+                                 action="#{loginController.abrirConfiguracoes}" />
+            </div>
+        </div>
+
+
+        <div class="menu-lateral">
+            <h:form>
+                <p:menu toggleable="true">
+                    <p:menuitem value="Home" outcome="index"
+                                rendered="#{not empty loginController.cspAutenticado ||
+                                            not empty loginController.professorAutenticado ||
+                                            not empty loginController.alunoAutenticado}"/>
+                    <p:menuitem value="Login" outcome="login"
+                                rendered="#{empty loginController.usuarioLogado}"/>
+
+                    <p:submenu label="Listagem"
+                               rendered="#{not empty loginController.usuarioLogado}">
+                        <p:menuitem value="Editais" outcome="editalList" 
+                                    rendered="#{not empty loginController.cspAutenticado ||
+                                                not empty loginController.professorAutenticado ||
+                                                not empty loginController.alunoAutenticado}"/>
+                        <p:menuitem value="Projetos" outcome="projetoList" 
+                                    rendered="#{not empty loginController.professorAutenticado}"/>
+                        <p:menuitem value="Correções de projetos" outcome="projetoListCorrecao" 
+                                    rendered="#{not empty loginController.professorAutenticado}"/>
+                        <p:menuitem value="Relatórios" outcome="professorRelatorio" 
+                                    rendered="#{not empty loginController.professorAutenticado}"/>
+                        <p:menuitem value=" Disciplinas" outcome="disciplinaList" 
+                                    rendered="#{not empty loginController.cspAutenticado}"/>
+                        <p:menuitem value="Projetos pendentes" outcome="projetoList" 
+                                    rendered="#{not empty loginController.cspAutenticado}"/>
+                        <p:menuitem value="Cadastros pendentes" outcome="professorList" 
+                                    rendered="#{not empty loginController.cspAutenticado}"/>
+                         <p:menuitem value="Relatorio frequencias pagamento" outcome="relatorioFrequencia" 
+                                    rendered="#{not empty loginController.cspAutenticado}"/>
+                        <p:menuitem value="Alunos por projetos" outcome="cspAlunosAprovadosProjetos" 
+                                    rendered="#{not empty loginController.cspAutenticado}"/>
+                        <p:menuitem value="Inscrição de Projetos" outcome="alunoProjetosList" 
+                                    rendered="#{not empty loginController.alunoAutenticado}"/>
+                        <p:menuitem value="Lista de presença" outcome="alunoProjetosAprovadoList" 
+                                    rendered="#{not empty loginController.alunoAutenticado}"/>
+                            <p:menuitem value="Histórico" outcome="alunoHistoricoParcial" 
+                                    rendered="#{not empty loginController.alunoAutenticado}"/>
+                        <p:menuitem value="Alunos em projeto" outcome="projetoAlunosInscritos" 
+                                    rendered="#{ not empty loginController.professorAutenticado}"/>
+                        <p:menuitem value="Horário" outcome="horarioList" 
+                                    rendered="#{ not empty loginController.alunoAutenticado}"/>
+                        <p:menuitem value="Entrevistas pendentes" outcome="entrevistaList" 
+                                    rendered="#{ not empty loginController.professorAutenticado}"/>
+                    </p:submenu>
+
+                    <p:submenu label="Cadastro"
+                               rendered="#{not empty loginController.usuarioLogado}">
+                        <p:menuitem value="Edital" outcome="editalCadastro" 
+                                    rendered="#{not empty loginController.cspAutenticado}"/>
+                        <p:menuitem value="Curso" outcome="cursoCadastro" 
+                                    rendered="#{not empty loginController.cspAutenticado}" />
+                        <p:menuitem value="Disciplina" outcome="disciplinaCadastro" 
+                                    rendered="#{not empty loginController.cspAutenticado}"/>
+                        <p:menuitem value="CSP" outcome="cspCadastro" 
+                                    rendered="#{not empty loginController.cspAutenticado}" />
+                        <p:menuitem value="Professor" outcome="professorCadastro" 
+                                    rendered="#{not empty loginController.cspAutenticado}" />
+                        <p:menuitem value="Projetos" outcome="projetoCadastro" 
+                                    rendered="#{not empty loginController.professorAutenticado}"/>
+                        <p:menuitem value="Aluno" outcome="alunoCadastro" 
+                                    rendered="#{not empty loginController.cspAutenticado}"/>
+
+                    </p:submenu>
+                </p:menu>
+            </h:form>
+        </div>
+
+        <div class="main-container">
+            <ui:insert name="content">
+
+            </ui:insert>
+        </div>
+    </h:body>
+</html>
+

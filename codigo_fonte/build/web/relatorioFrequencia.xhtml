@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="templates/template.xhtml">
+
+    <ui:define name="title">
+        Relatório de Frequência Mensal
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="relatorioMensalForm">
+            <p:messages id="messages" closable="true" />
+
+            <!-- Estilos personalizados -->
+            <style>
+                .data-table {
+                    margin: 30px auto;
+                    max-width: 1000px;
+                    background-color: #ffffff;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                    padding: 20px;
+                    border: 1px solid #e6e6e6;
+                }
+
+                .data-table .ui-datatable {
+                    width: 100%;
+                    border-spacing: 0;
+                    border-collapse: collapse;
+                }
+
+                .data-table .ui-column {
+                    text-align: center;
+                }
+
+                .ui-datatable th, .ui-datatable td {
+                    padding: 10px 15px;
+                    text-align: center;
+                }
+
+                .ui-datatable th {
+                    background-color: #f4f4f4;
+                    color: #333;
+                    font-weight: bold;
+                }
+
+                .ui-datatable td {
+                    background-color: #fff;
+                    color: #666;
+                }
+
+                .ui-paginator {
+                    text-align: center;
+                    margin-top: 20px;
+                }
+
+                .ui-paginator .ui-paginator-page {
+                    margin: 0 5px;
+                    padding: 6px 12px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    background-color: #f4f4f4;
+                    color: #333;
+                    cursor: pointer;
+                }
+
+                .ui-paginator .ui-paginator-page:hover {
+                    background-color: #e7e7e7;
+                }
+            </style>
+
+            <div class="data-table">
+                <p:panel header="Lista de alunos com frequência esse mês" styleClass="data-table">
+                    <p:dataTable id="relatorioTable" 
+                                 value="#{relatorioController.relatoriosMensais}" 
+                                 var="item" 
+                                 paginator="true" 
+                                 rows="10">
+
+                        <p:column headerText="Nome do Aluno" filterBy="#{item['nomeAluno']}">
+                            <h:outputText value="#{item['nomeAluno']}" />
+                        </p:column>
+
+                        <p:column headerText="Tipo Bolsa">
+                            <h:outputText value="#{item['remunerado'] == 1 ? 'Bolsista' : 'Voluntario'}" />
+                        </p:column>
+
+                        <p:column headerText="Valor da Bolsa">
+                            <h:outputText value="#{item['valorbolsa']}" />
+                        </p:column>
+
+                        <p:column headerText="Data Assinatura Aluno">
+                            <h:outputText value="#{item['dtassinaaluno']}">
+                            </h:outputText>
+                        </p:column>
+
+                    </p:dataTable>
+                </p:panel>
+            </div>
+        </h:form>
+    </ui:define>
+</ui:composition>
