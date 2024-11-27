@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="templates/template.xhtml">
+
+    <f:metadata>
+        <f:viewAction action="#{loginController.verificarQualquerUsuarioAutenticado()}" />
+    </f:metadata>
+
+    <ui:define name="title">
+        Lista de Editais
+    </ui:define>
+
+    <ui:define name="content">
+        <style>
+            .data-table {
+                margin: 20px auto;
+                max-width: 800px;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                border: 1px solid #e6e6e6;
+            }
+            .data-table .ui-datatable {
+                width: 100%;
+            }
+            .button-container {
+                text-align: center;
+                margin-top: 20px;
+            }
+            .button-container .p-button {
+                margin-right: 10px;
+            }
+            .status-ativo {
+                color: green;
+                font-weight: bold;
+            }
+            .status-inativo {
+                color: red;
+                font-weight: bold;
+            }
+        </style>
+
+        <h:form id="editalListForm">
+            <p:messages id="messages" closable="true" />
+
+            <!-- Tabela para listar -->
+            <p:panel header="Lista de Editais" styleClass="data-table">
+                <p:dataTable value="#{editalController.listaEdital}" var="edital" 
+                             selectionMode="single" 
+                             selection="#{editalController.editalSelecionado}" 
+                             rowKey="#{edital.idedital}" 
+                             paginator="true" rows="5" lazy="true">
+                    <p:column headerText="ID" filterBy="#{edital.idedital}" filterMatchMode="contains" >
+                        <h:outputText value="#{edital.idedital}" />
+                    </p:column>
+                    <p:column headerText="Data de Abertura" filterBy="#{edital.dataabertura}" filterMatchMode="exact">
+                        <h:outputText value="#{edital.dataabertura}">
+                            <f:convertDateTime pattern="dd/MM/yyyy" />
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Data de Fechamento" filterBy="#{edital.datafechamento}" filterMatchMode="exact">
+                        <h:outputText value="#{edital.datafechamento}">
+                            <f:convertDateTime pattern="dd/MM/yyyy" />
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Tipo" filterBy="#{edital.tipoedital}" filterMatchMode="contains">
+                        <h:outputText value="#{edital.tipoedital == 'novo_projeto' ? 'Edital para lançar projeto' : (edital.tipoedital == 'projeto_aprovado' ? 'Edital para projeto aprovado' : 'Edital para projeto voluntário')}" />
+                    </p:column>
+                    <p:column headerText="Download PDF">
+                        <p:commandLink value="Baixar" ajax="false">
+                            <f:param name="relatorioId" value="#{edital.idedital}" />
+                            <p:fileDownload value="#{editalController.getFileById(edital.idedital)}" />
+                        </p:commandLink>
+                    </p:column>
+
+
+                    <p:column headerText="Status">
+                        <h:outputText value="#{edital.status}" 
+                                      styleClass="#{edital.status eq 'Ativo' ? 'status-ativo' : 'status-inativo'}" />
+                    </p:column>
+                </p:dataTable>
+
+                <!-- Botões -->
+                <div class="button-container">
+                    <p:commandButton value="Cadastrar" action="editalCadastro?faces-redirect=true" icon="pi pi-user" styleClass="p-button-raised p-button-primary" style="margin-right: 20px"/>
+
+                    <p:commandButton value="Editar" 
+                                     action="#{editalController.prepararCadastroOuEdicao(true)}" 
+                                     icon="pi pi-pencil" 
+                                     styleClass="p-button-raised p-button-primary" 
+                                     rendered="#{not empty loginController.cspAutenticado}"  
+                                     style="margin-right: 20px"/>
+                    <p:commandButton value="Excluir" 
+                                     action="#{editalController.excluirEdital()}" 
+                                     icon="pi pi-trash" 
+                                     styleClass="p-button-raised p-button-danger" 
+                                     update="@form" 
+                                     rendered="#{not empty loginController.cspAutenticado}" 
+                                     style="margin-right: 20px"/>
+                    <p:commandButton value="Voltar" 
+                                     action="index?faces-redirect=true" 
+                                     icon="pi pi-arrow-left" 
+                                     styleClass="p-button-raised" />
+                </div>
+            </p:panel>
+        </h:form>
+    </ui:define>
+</ui:composition>

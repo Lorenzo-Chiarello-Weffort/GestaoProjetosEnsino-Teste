@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="templates/template.xhtml">
+    <f:metadata>
+        <f:viewAction action="#{loginController.verificarUsuarioAutenticado('csp')}" />
+    </f:metadata>
+
+    <ui:define name="title">
+        Cadastro de Curso
+    </ui:define>
+
+    <ui:define name="content">
+        <!-- Estilos personalizados -->
+        <style>
+            .form-panel {
+                max-width: 600px;
+                margin: 0 auto;
+                text-align: left;
+                padding: 20px;
+            }
+            .form-group {
+                margin-bottom: 15px;
+            }
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+            }
+            .form-group input {
+                width: 100%;
+                padding: 8px;
+                box-sizing: border-box;
+            }
+            .button-container {
+                text-align: center;
+                margin-top: 20px;
+            }
+            .disciplinas-section {
+                margin-top: 30px;
+            }
+            .disciplinas-section .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+        </style>
+
+        <!-- Formulário de cadastro e edição -->
+        <h:form id="cursoCadastroForm">
+            <!-- Exibição de mensagens de feedback -->
+            <p:messages id="messages" closable="true" />
+
+            <!-- Painel principal do formulário -->
+            <p:panel header="#{cursoController.editar ? 'Editar Curso' : 'Cadastrar Curso'}" styleClass="form-panel">
+                <!-- Campo para o nome do curso -->
+                <div class="form-group">
+                    <p:outputLabel for="nome" value="Nome do Curso:" />
+                    <p:inputText id="nome" value="#{cursoController.cursoParaCadastro.nomeCurso}" required="true" label="Nome do Curso">
+                        <f:validateLength minimum="1" maximum="100" />
+                    </p:inputText>
+                </div>
+
+                <!-- Botões de ação -->
+                <div class="button-container">
+                    <p:commandButton value="Salvar" action="#{cursoController.salvarCurso}" 
+                                     update="@form" icon="pi pi-check" styleClass="ui-priority-primary" style="margin-right:   20px"/>
+                    <p:commandButton value="Cancelar" action="index?faces-redirect=true" 
+                                     icon="pi pi-times" styleClass="ui-priority-secondary" />
+                </div>
+            </p:panel>
+        </h:form>
+    </ui:define>
+</ui:composition>

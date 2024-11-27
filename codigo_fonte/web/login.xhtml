@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      translate="no">
+    <h:head>
+        <title>Login</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <!-- Adicionar recursos de CSS/JS do PrimeFaces ou outros aqui -->
+    </h:head>
+    <body>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+            h3 {
+                color: #333;
+                margin: 20px 0;
+            }
+            .card {
+                background: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                max-width: 400px;
+                width: 100%;
+                text-align: center;
+            }
+            .card p {
+                margin: 0;
+                font-size: 16px;
+                color: #555;
+            }
+            .card label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+                color: #333;
+            }
+            .card input, .card button {
+                width: calc(100% - 22px);
+                padding: 10px;
+                margin: 5px 0 15px;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+                font-size: 16px;
+            }
+            .card input:focus {
+                border-color: #007bff;
+                outline: none;
+            }
+            .card button {
+                background-color: #007bff;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+                font-size: 16px;
+            }
+            .card button:hover {
+                background-color: #0056b3;
+            }
+            .card a {
+                color: #007bff;
+                text-decoration: none;
+                font-size: 14px;
+                margin: 0 5px;
+            }
+            .card a:hover {
+                text-decoration: underline;
+            }
+            .message {
+                color: red;
+                font-size: 12px;
+                margin-top: -10px;
+                margin-bottom: 10px;
+            }
+            .space {
+                height: 20px;
+            }
+        </style>
+        <div class="card">
+            <h2>
+                <b>Login</b>
+            </h2>
+            <h:form id="login">
+                <p:messages id="messages" showDetail="true" closable="true" />
+
+                <label for="prontuario">Prontuário <span style="color: red;">*</span></label>
+                <p:inputText id="prontuario" value="#{loginController.prontuario}" placeholder="Prontuário"
+                             required="true"
+                             requiredMessage="Por favor, insira o Prontuário."
+                             maxlength="9"
+                             oninput="this.value = this.value.toUpperCase();">
+                    <p:ajax event="keyup" update="mProntuario"/>
+                </p:inputText>
+                <p:message id="mProntuario" for="prontuario" display="text" styleClass="message"/>
+                <br/>
+                <label for="senha">Senha <span style="color: red;">*</span></label>
+                <p:password id="senha" value="#{loginController.senha}" placeholder="Senha"
+                            required="true"
+                            requiredMessage="Por favor, insira a Senha.">
+                    <p:ajax event="blur" update="mSenha"/>
+                </p:password>
+                <p:message id="mSenha" for="senha" display="text" styleClass="message"/>
+                <br/>
+                <p:commandButton
+                    id="btn-login"
+                    action="#{loginController.login()}"
+                    value="Entrar" update="login"
+                    styleClass="ui-button-raised"/>
+                <div class="space"></div>
+                
+                <div style="text-align: center;">
+                    <a href="alunoCadastro.xhtml" id="cadastre-se">Cadastre-se (Aluno)</a>
+                    <a href="professorCadastro.xhtml" id="cadastre-se">Cadastre-se (Professor)</a>
+                </div>
+            </h:form>
+        </div>
+    </body>
+</html>
